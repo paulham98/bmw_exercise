@@ -1,0 +1,42 @@
+image: docker:19.03.13
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+  - node_modules/
+  - .next/
+
+stages:
+  - install
+  - build
+
+services:
+  - docker:19.03.13-dind
+
+install_dependencies:
+  stage: install
+  image: node:14.17.3
+  tags:
+    - gitlab-org-docker
+  script:
+    # - echo "$DOCKER_REPO_HOST"
+    - pwd
+    # - npm install
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  before_script:
+    - echo docker login $DOCKER_REGISTRY --username $DOCKER_REGISTRY_USER --password-stdin
+  tags:
+    - gitlab-org-docker
+  script:
+    - echo "Compiling the code..."
+    - echo "build"
+    - docker build -t registry.gitlab.com/areum.lee1/bmwgs_frontend . 
+    - docker login registry.gitlab.com -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS
+    - docker push registry.gitlab.com/areum.lee1/bmwgs_frontend
+   #- docker push bmw-frontend-app
+   #- docker images
+
+
+
